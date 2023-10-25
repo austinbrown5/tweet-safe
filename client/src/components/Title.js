@@ -13,26 +13,26 @@ const Title = () => {
             return (
         < div >
         <h1 className="black-text">
-            <Typewriter
-                onInit={(typewriter) => {
-                    typewriter.changeDelay(80).changeDeleteSpeed(40)
-                        .typeString('Social Media')
-                        .pauseFor(1000)
-                        .deleteChars(5)
-                        .pauseFor(1000)
-                        .typeString("Awareness")
-                        .pauseFor(1000)
-                        .deleteChars(9)
-                        .pauseFor(1000)
-                        .typeString("Scout")
-                        .pauseFor(2530)
-                        .callFunction(() => {
-                            setStop(true)
-                        })
-                        .start()
-                    // .stop();
-                }}
-            />
+        <Typewriter
+        onInit={(typewriter) => {
+            typewriter.changeDelay(80).changeDeleteSpeed(40)
+                .typeString('Social Media')
+                .pauseFor(1000)
+                .deleteAll()
+                .pauseFor(1000)
+                .typeString("Safe Socials")
+                .pauseFor(1000)
+                .deleteAll()
+                .pauseFor(1000)
+                .typeString("Tweet Safe")
+                .pauseFor(2530)
+                .callFunction(() => {
+                    setStop(true)
+                })
+                .start()
+            // .stop();
+        }}
+    />
 
 
         </h1>
