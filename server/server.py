@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from regex import R
 load_dotenv()
 import os
-import tweepy
 import nltk
 from nltk.corpus import stopwords
 nltk.download('stopwords')
@@ -12,9 +11,13 @@ stop_words = stopwords.words('english')
 from urllib.parse import unquote
 from textblob import TextBlob, Word
 from profanity_check import predict
+import tweety
+from tweety import Twitter
 
 app = Flask(__name__)
-client = tweepy.Client(bearer_token = os.getenv("BEARER_TOKEN"), wait_on_rate_limit=True)
+
+client = Twitter("session")
+
 
 def preprocess_tweets(tweet):
     processed_tweet = tweet
@@ -26,47 +29,38 @@ def preprocess_tweets(tweet):
 
 @app.route("/handle")
 def userTimeline():
+
     username = unquote(request.args.get('username'))
-    data = client.get_user(
-            username=username, 
-            user_fields = 
-            ['profile_image_url',
-            'protected',
-            'created_at',
-            'description',
-            'location',
-            'public_metrics']).data
-    
-    if not data:
-        return {"type": "handle",
-            "error" : 
-        "There is no twitter account with this handle",
-        "author": False,
-        "tweets": False}
+    username = username.replace("@", "")
 
-    user_id = data.id
+    try:
 
-    author = {"type": "handle",
+        data = client.get_user_info(username)
+
+    except tweety.exceptions_.UserNotFound:
+        return {
+            "type": "handle",
+            "error": "There is no twitter account with this handle",
+            "author": False,
+            "tweets": False
+        }
+
+    author = {
+        "type": "handle",
         "name": data.name,
         "username": data.username,
-        "image": data.profile_image_url
+        "image": data.profile_image_url_https
     }
 
     if data.protected:
-        return{"type": "handle",
-            "error": 
-        "This account is private, Tweet-Safe can only scan public accounts",
-        "author": author,
-        "tweets": False}
-
-    Alltweets = tweepy.Paginator(
-            client.get_users_tweets, 
-            max_results = 100,
-            id = user_id, 
-            tweet_fields = 
-                ["text", 
-                "created_at", 
-                "public_metrics"]).flatten()
+        return {
+            "type": "handle",
+            "error": "This account is private, Tweet-Safe can only scan public accounts",
+            "author": author,
+            "tweets": False
+        }
+    
+    Alltweets = client.get_tweets(username, pages = 5, replies = False, wait_time = 2)
 
     tweets = []
     avgSentiment = 0
@@ -79,9 +73,9 @@ def userTimeline():
         ptweet = preprocess_tweets(tweet.text)
         sentiment = TextBlob(ptweet).sentiment[0]
         avgSentiment = (avgSentiment + sentiment)/ count
-        popularity = tweet.public_metrics["like_count"]
+        popularity = tweet.likes
         avgPopularity = (avgPopularity+popularity)/count
-        date = tweet.created_at.strftime("%d %b, %Y")
+        date = tweet.created_on.strftime("%d %b, %Y")
         sentimentGraph.append(
         {"sentiment": popularity,
         # "popularity": popularity,
@@ -92,12 +86,12 @@ def userTimeline():
             tweetInfo = {
                 "tweet": tweet.text,
                 "id": tweet.id,
-                "permalink": "https://twitter.com/twitter/statuses/" + str(tweet.id),
-                "time": tweet.created_at,
+                "permalink": tweet.url,
+                "time": tweet.created_on,
                 "engagement": {
-                    "replies": tweet.public_metrics["reply_count"],
-                    "retweets": tweet.public_metrics["retweet_count"],
-                    "likes": tweet.public_metrics["like_count"]
+                    "replies": tweet.reply_counts,
+                    "retweets": tweet.retweet_counts,
+                    "likes": tweet.likes
                 }
             }
             tweets.append(tweetInfo)
