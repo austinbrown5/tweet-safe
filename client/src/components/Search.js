@@ -9,8 +9,8 @@ import '../style.css'
 const Input = ({ warning, error, ...rest }) => {
   return (
     <div className="input-field">
-      <input placeholder="Enter @username, #hashtag, or a keyword" className={error} id="query" type="text" {...rest} />
-      {/* <label htmlFor="query">Enter @username, #hashtag, or a keyword</label> */}
+      <input placeholder="Enter @username" className={error} id="query" type="text" {...rest} />
+      {/* <label htmlFor="query">Enter @username</label> */}
       <span className="red-text left-align helper-text" >{warning}</span>
     </div>)
 }

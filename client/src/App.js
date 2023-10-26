@@ -17,8 +17,6 @@ const App = () => {
     let info
     if (search.charAt(0) === '@')
       info = await axios.get(`/handle?username=${encodeURIComponent(search.substring(1))}`)
-    else
-      info = await axios.get(`/query?search=${encodeURIComponent(search)}`)
 
     setData(info.data)
   }

@@ -60,7 +60,7 @@ def userTimeline():
             "tweets": False
         }
     
-    Alltweets = client.get_tweets(username, pages = 5, replies = False, wait_time = 2)
+    Alltweets = client.get_tweets(username, pages = 10, replies = False, wait_time = 5)
 
     tweets = []
     avgSentiment = 0
@@ -110,77 +110,6 @@ def userTimeline():
             "author": author,
             "tweets": tweets,
             "sentiment": sentimentGraph}
-    
-
-@app.route("/query")
-def searchTimeline():
-    query = unquote(request.args.get('search'))
-    print(query)
-    Alltweets = tweepy.Paginator(
-                    client.search_recent_tweets, 
-                    max_results = 100,
-                    query = query,
-                    tweet_fields = 
-                            ["text", 
-                            "created_at", 
-                            "public_metrics",],
-                    # user_fields = 
-                    #         [
-                    #         'username',
-                    #         'name',
-                    #         'profile_image_url'],
-                    expansions='author_id'
-                    ).flatten(limit = 1000)
-
-    tweets = []
-    avgSentiment = 0
-    i = 0
-    
-
-    for tweet in Alltweets:
-        i+=1
-        if i <= 5:
-
-            user = client.get_user(
-                    id = tweet.author_id, 
-                    user_fields = 
-                    ['profile_image_url']).data
-
-            author = {
-                "username": user.username,
-                "name": user.name,
-                "image": user.profile_image_url
-            }
-
-            # author = {
-            #         "username": "jeff",
-            #         "name": "jeff",
-            #         "image": ""
-            # }
-
-            tweetInfo = {
-                    "tweet": tweet.text,
-                    "author": author,
-                    "id": tweet.id,
-                    "permalink": "https://twitter.com/twitter/statuses/" + str(tweet.id),
-                    "time": tweet.created_at,
-                    "engagement": {
-                        "replies": tweet.public_metrics["reply_count"],
-                        "retweets": tweet.public_metrics["retweet_count"],
-                        "likes": tweet.public_metrics["like_count"]
-                    }
-                }
-            tweets.append(tweetInfo)
-
-    if not tweets:
-        return{"type": "query",
-            "error": "No tweets for this query",
-            "tweets": False}
-
-    return {"type": "query",
-            "error": False,
-            "tweets": tweets}
-
 
 
 if __name__ == "__main__":

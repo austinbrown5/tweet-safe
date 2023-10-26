@@ -24,7 +24,7 @@ const Title = () => {
                 .pauseFor(1000)
                 .deleteAll()
                 .pauseFor(1000)
-                .typeString("Tweet Safe")
+                .typeString("Tweet-Safe")
                 .pauseFor(2530)
                 .callFunction(() => {
                     setStop(true)
