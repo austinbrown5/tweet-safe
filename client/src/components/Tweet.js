@@ -21,7 +21,7 @@ const Tweet = ({author, engagement, tweet, time, permalink}) => {
                 clickableProfileLink = {true}
                 tweet={tweet}
                 time={time}
-                source="Social Scout"
+                source="Tweet Safe"
                 permalink={permalink}
                 showEngagement = {false}
                 fitInsideContainer = {true}
