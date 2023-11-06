@@ -10,9 +10,10 @@ nltk.download('wordnet')
 stop_words = stopwords.words('english')
 from urllib.parse import unquote
 from textblob import TextBlob, Word
-from profanity_check import predict
+from profanity_check import predict_prob
 import tweety
 from tweety import Twitter
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -26,6 +27,11 @@ def preprocess_tweets(tweet):
     # processed_tweet = " ".join(Word(word).lemmatize() for word in processed_tweet.split())
     return(processed_tweet)
 
+def get_date(item):
+    return convert_to_datetime(item['date'])
+
+def convert_to_datetime(date_string):
+    return datetime.strptime(date_string, "%d %b, %Y")
 
 @app.route("/handle")
 def userTimeline():
@@ -77,12 +83,12 @@ def userTimeline():
         avgPopularity = (avgPopularity+popularity)/count
         date = tweet.created_on.strftime("%d %b, %Y")
         sentimentGraph.append(
-        {"sentiment": popularity,
+        {"sentiment": sentiment,
         # "popularity": popularity,
         "date": date})
 
 
-        if predict([tweet.text])[0] == 1:
+        if predict_prob([tweet.text])[0] >= 0.5:
             tweetInfo = {
                 "tweet": tweet.text,
                 "id": tweet.id,
@@ -103,7 +109,7 @@ def userTimeline():
             "author": author,
             "tweets": False}
 
-    sentimentGraph.reverse()
+    sentimentGraph = sorted(sentimentGraph, key=get_date)
 
     return {"type": "handle",
             "error": False,
