@@ -54,18 +54,6 @@ const App = () => {
               </div>
           </div> )
 
-      case 'query':
-        return data.tweets.map(
-          (tweet, i) =>
-          (<div key={i}>
-            <Tweet author={tweet.author}
-              engagement={tweet.engagement}
-              tweet={tweet.tweet}
-              time={tweet.time}
-              permalink={tweet.permalink} />
-            <br />
-          </div>))
-
        default:
             return
 
